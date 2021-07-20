@@ -3,19 +3,31 @@
 let globVar = document.getElementById('tableId');
 let table = document.createElement('table');
 globVar.appendChild(table);
-let number = 50;
-let allStudent = [];
+Student.all = [];
 
-function Student(name, course) {
+function Student(name, course, grade = randomGrade(), status = ifPass(grade)) {
     this.name = name;
     this.course = course;
+    this.grade = grade;
+    this.status = status;
 
-    allStudent.push(this);
+    Student.all.push(this);
 }
 
-let studentGrade = function randomGrade() {
+function randomGrade() {
     return Math.floor((Math.random() * 100) + 0);
-}
+};
+
+function ifPass(grade) {
+    let theGrade = 0;
+
+    if (grade >= 50) {
+        theGrade = 'PASS';
+    } else if (grade < 50) {
+        theGrade = 'FAIL';
+    }
+    return theGrade;
+};
 
 function headerRender() {
     let row = document.createElement('tr');
@@ -47,7 +59,7 @@ Student.prototype.render = function () {
 
     let rowData2 = document.createElement('td');
     row.appendChild(rowData2);
-    rowData2.textContent = `${studentGrade()}`;
+    rowData2.textContent = `${this.grade}`;
 
     let rowData3 = document.createElement('td');
     row.appendChild(rowData3);
@@ -55,11 +67,7 @@ Student.prototype.render = function () {
 
     let rowData4 = document.createElement('td');
     row.appendChild(rowData4);
-    if (studentGrade() >= number) {
-        rowData4.textContent = 'PASS';
-    } else {
-        rowData4.textContent = 'FAIL';
-    }
+    rowData4.textContent = `${this.status}`
 }
 let form = document.getElementById('form');
 form.addEventListener('submit', submitting);
@@ -75,18 +83,17 @@ function submitting(event) {
 }
 
 function settingItems() {
-    let ConvertArray = JSON.stringify(allStudent);
-    localStorage.setItem('allGrades', ConvertArray);
+    localStorage.setItem('allGrades', JSON.stringify(Student.all))
 }
 
 function gettingItems() {
-    let data = localStorage.getItem('allGrades')
-    let newData = JSON.parse(data);
+    let newData = JSON.parse(localStorage.getItem('allGrades'));
 
     if (newData) {
-        for (let i = 0; i < newData.length; i++)
-            var reInst = new Student(newData[i].name, newData[i].course)
-        reInst.render();
+        for (let i = 0; i < newData.length; i++) {
+            let reInst = new Student(newData[i].name, newData[i].course, newData[i].grade, newData[i].status);
+            reInst.render();
+        }
     }
 }
 gettingItems();
